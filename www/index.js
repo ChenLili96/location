@@ -1,8 +1,16 @@
+var watchID;
+var locationOptions = {
+    maximumAge: 10000,
+    timeout: 6000,
+    enableHighAccurancy: true
+};
+
 //when the jQuery Mobile page is initialised
 $(document).on('pageinit', function() {
 	
 	//set up listener for button click
-	$(document).on('click', getPosition);
+	$('#startLocationButton').on('click', updateLocation);
+    $('#stopLocationButton').on('click', stopUpdates);
 	
 	//change time box to show message
 	$('#time').val("Press the button to get location data");
@@ -11,15 +19,23 @@ $(document).on('pageinit', function() {
 
 
 //Call this function when you want to get the current position
-function getPosition() {
+function updateLocation() {
 	
 	//change time box to show updated message
 	$('#time').val("Getting data...");
 	
 	//instruct location service to get position with appropriate callbacks
-	navigator.geolocation.getCurrentPosition(successPosition, failPosition);
+	//navigator.geolocation.getCurrentPosition(successPosition, failPosition);
+    
+    watchID = navigator.geolocation.watchPosition(successPosition, failPosition, locationOptions);
 }
 
+function stopUpdates(){
+    
+    $('#time').val("Press the button to get location data");
+    navigator.geolocation.clearWatch(watchID);
+    
+}
 
 //called when the position is successfully determined
 function successPosition(position) {
@@ -29,7 +45,6 @@ function successPosition(position) {
 	
 
 	//lets get some stuff out of the position object
-	//var time = position.timestamp;
     var unixtime = new Date(position.timestamp);
     var date = unixtime.toDateString();
 	var latitude = position.coords.latitude;
